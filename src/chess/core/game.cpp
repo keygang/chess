@@ -6,56 +6,175 @@ bool ChessGame::move(core::Move move) {
   if (!is_valid_move(move)) {
     return false;
   }
-  ChessboardCell& cell = chessboard_[move.from_x][move.from_y];
-  chessboard_[move.to_x][move.to_y] = cell;
-  cell = std::nullopt;
-  moves_.push_back(move);
+  push_move(move);
 
   return true;
 }
 
-const Chessboard& ChessGame::get_chessboard() const { return chessboard_; }
+const Chessboard& ChessGame::get_chessboard() const {
+  return chessboard_;
+}
 
-ChessGame::ChessGame() : chessboard_(kDefaultChessboard) {}
+ChessGame::ChessGame() : chessboard_(kDefaultChessboard) {
+}
 
 bool ChessGame::is_white_move() const {
   return moves_.size() % 2 == 0;
 }
 
-bool ChessGame::is_valid_move(const Move& move) {
-  const ChessboardCell& chessboard_cell_from = chessboard_[move.from_x][move.from_y];
-  if (!chessboard_cell_from) {
+bool ChessGame::is_valid_move(const Move& move) const {
+  if (!chessboard_.is_in_range(move)) {
     return false;
   }
-  const Figure& figure_from = *chessboard_cell_from;
-  const ChessboardCell& chessboard_cell_to = chessboard_[move.to_x][move.to_y];
 
-  if (is_white_move()) {
-    if (!figure_from.is_white) {
-      return false;
+  const std::optional<Figure>& figure_from = chessboard_[move.from];
+  if (!figure_from) {
+    return false;
+  }
+
+  const std::optional<Figure>& figure_to = chessboard_[move.to];
+  if (figure_from->is_white && !is_white_move()) {
+    return false;
+  }
+  if (!figure_from->is_white && is_white_move()) {
+    return false;
+  }
+
+  std::vector<Move> valid_moves = get_valid_moves(move.from);
+
+  return std::find(valid_moves.begin(), valid_moves.end(), move) != valid_moves.end();
+}
+
+void ChessGame::reset() {
+  moves_.clear();
+  chessboard_ = kDefaultChessboard;
+}
+
+std::vector<Move> ChessGame::get_valid_moves(const CellIndex& from_index) const {
+  if (!chessboard_.is_in_range(from_index)) {
+    return {};
+  }
+  const std::optional<Figure>& figure = chessboard_[from_index];
+  if (!figure) {
+    return {};
+  }
+
+  std::vector<Move> moves = chessboard_.get_attack_moves(from_index);
+
+  auto add_pawn_moves = [&from_index, this, &moves, &figure](){
+    if (figure->is_white) {
+      // en passant
+      {
+        CellIndex to_index = {from_index.x - 1, from_index.y - 1};
+        if (chessboard_.is_in_range(to_index) && is_pawn_en_passant({from_index, to_index})) {
+          moves.push_back({from_index, to_index});
+        }
+      }
+      {
+        CellIndex to_index = {from_index.x - 1, from_index.y + 1};
+        if (chessboard_.is_in_range(to_index) && is_pawn_en_passant({from_index, to_index})) {
+          moves.push_back({from_index, to_index});
+        }
+      }
+    } else {
+      {
+        CellIndex to_index = {from_index.x + 1, from_index.y - 1};
+        if (chessboard_.is_in_range(to_index) && is_pawn_en_passant({from_index, to_index})) {
+          moves.push_back({from_index, to_index});
+        }
+      }
+      {
+        CellIndex to_index = {from_index.x + 1, from_index.y + 1};
+        if (chessboard_.is_in_range(to_index) && is_pawn_en_passant({from_index, to_index})) {
+          moves.push_back({from_index, to_index});
+        }
+      }
     }
-    if (chessboard_cell_to && chessboard_cell_to->is_white) {
-      return false;
-    }
-  } else {
-    if (figure_from.is_white) {
-      return false;
-    }
-    if (chessboard_cell_to && !chessboard_cell_to->is_white) {
-      return false;
+  };
+
+  switch (figure->figure_name) {
+    case FigureName::PAWN: {
+      add_pawn_moves();
+      break;
     }
   }
 
-//  if (figure_from.figure_name == FigureName::PAWN) {
-//    if (figure_from.is_white) {
-//      if (move.from_y == chessboard_.size() - 2) {
-//        if (move.)
-//      }
-//    }
-//  }
+  std::sort(moves.begin(), moves.end());
+  moves.erase(std::unique(moves.begin(), moves.end()), moves.end());
 
-  // TODO: add rules;
-  return true;
+  ChessGame fake_game(*this);
+  for (size_t i = 0; i < moves.size(); ++i) {
+    fake_game.push_move(moves[i]);
+    std::optional<CellIndex> king_cell_index = fake_game.chessboard_.find_figure(Figure{FigureName::KING, is_white_move()});
+    assert(king_cell_index);
+    std::vector<Move> enemy_moves = fake_game.chessboard_.get_all_attack_moves(fake_game.is_white_move());
+    if (std::find_if(enemy_moves.begin(), enemy_moves.end(), [&king_cell_index](const Move& enemy_move){
+          return enemy_move.to == king_cell_index;
+        }) != enemy_moves.end()) {
+      std::swap(moves[i], moves.back());
+      moves.pop_back();
+      i -= 1;
+    }
+    fake_game.pop_move();
+  }
+
+  return moves;
 }
 
+bool ChessGame::is_pawn_en_passant(const Move& move) const {
+  if (moves_.empty()) {
+    return false;
+  }
+  const std::optional<Figure> figure = chessboard_[move.from];
+  if (!figure) {
+    return false;
+  }
+  if (figure->figure_name != FigureName::PAWN) {
+    return false;
+  }
+  const Move& last_move = moves_.back();
+  const std::optional<Figure>& last_figure = chessboard_[last_move.to];
+  assert(last_figure);
+  if (last_figure->figure_name != FigureName::PAWN) {
+    return false;
+  }
+
+  if (last_move.to.x != move.from.x || std::abs(last_move.to.y - move.from.y) != 1) {
+    return false;
+  }
+
+  if (figure->is_white) {
+    assert(!last_figure->is_white);
+    if (last_move.to.x - last_move.from.x == 2) {
+      return CellIndex{move.from.x - 1, last_move.to.y} == move.to;
+    }
+  } else {
+    assert(last_figure->is_white);
+    if (last_move.from.x - last_move.to.x == 2) {
+      return CellIndex{move.from.x + 1, last_move.to.y} == move.to;
+    }
+  }
+
+  return false;
 }
+
+void ChessGame::pop_move() {
+  std::vector<Move> moves = moves_;
+  moves.pop_back();
+  reset();
+  for (const Move& move : moves) {
+    push_move(move);
+  }
+}
+
+void ChessGame::push_move(const Move& move) {
+  if (is_pawn_en_passant(move)) {
+    chessboard_[moves_.back().to] = std::nullopt;
+  }
+  std::optional<Figure>& cell = chessboard_[move.from];
+  chessboard_[move.to] = cell;
+  cell = std::nullopt;
+  moves_.push_back(move);
+}
+
+}  // namespace chess::core

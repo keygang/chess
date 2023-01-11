@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace chess::ui {
 
 class ImGuiOverlay {

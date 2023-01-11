@@ -1,17 +1,17 @@
 #pragma once
 
-#include "chess/ui/image.h"
 #include "chess/ui/chess_asset_constants.h"
-#include "chess/ui/imgui_overlay.h"
+#include "chess/ui/image.h"
+#include "chess/ui/overlays/imgui_overlay.h"
 
 #include <chess/core/game.h>
+
+#include <imgui.h>
 
 #include <list>
 #include <unordered_map>
 
 namespace chess::ui {
-
-class DebugMouseOverlay;
 
 class PlayerUI : public core::PlayerI {
 public:
@@ -35,8 +35,8 @@ public:
 private:
   struct ChessboardUI {
     struct Cell {
-      float x = -1;
-      float y = -1;
+      float px = -1;
+      float py = -1;
     };
 
     float cell_x_size = -1;
@@ -44,10 +44,14 @@ private:
     std::array<std::array<Cell, core::kRowsNum>, core::kColumnsNum> cells;
   };
 
-  struct CellIndex {
-    int row = -1;
-    int column = -1;
-  };
+public:
+  static float kCellScaleFactor;
+  static float kBorderSizeX;
+  static float kBorderSizeY;
+
+  static ImU32 kHoveredCellColour;
+  static ImU32 kSelectedCellColour;
+  static ImU32 kValidMoveCellColour;
 
 private:
   void load_assets();
@@ -60,9 +64,9 @@ private:
   void update_drawable();
   void update_cursor();
 
-  std::optional<CellIndex> get_cell(float x, float y) const;
+  std::optional<core::CellIndex> get_cell(float x, float y) const;
 
-  void fill_cell(const CellIndex& cell_index, int32_t colour);
+  void fill_cell(const core::CellIndex& cell_index, int32_t colour);
 
   std::shared_ptr<core::PlayerI> player1_ = nullptr;
   std::shared_ptr<core::PlayerI> player2_ = nullptr;
@@ -70,32 +74,12 @@ private:
   std::list<Image> image_assets_;
   std::unordered_map<ChessAssetConstants, Image*> asset_to_image_;
   ChessboardUI chessboard_ui_;
-  std::optional<CellIndex> hovered_cell_;
-  std::optional<CellIndex> selected_cell_;
+  std::optional<core::CellIndex> hovered_cell_;
+  std::optional<core::CellIndex> selected_cell_;
 
   std::vector<std::unique_ptr<ImGuiOverlay>> overlays;
 
-  friend DebugMouseOverlay;
-};
-
-class DebugMouseOverlay : public ImGuiOverlay {
-public:
-  explicit DebugMouseOverlay(ChessUI& chess_ui);
-  void update() override;
-  std::string get_name() const override;
-
-private:
-  const ChessUI& chess_ui_;
-};
-
-class SettingsOverlay : public ImGuiOverlay {
-public:
-  explicit SettingsOverlay(ChessUI& chess_ui);
-  void update() override;
-  std::string get_name() const override;
-
-private:
-  ChessUI& chess_ui_;
+  friend class DebugMouseOverlay;
 };
 
 }  // namespace chess::ui

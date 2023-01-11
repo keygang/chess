@@ -2,6 +2,8 @@
 #include "chess/ui/assets_utils.h"
 #include "chess/ui/image.h"
 #include "chess/ui/imgui_utils.h"
+#include "chess/ui/overlays/debug_mouse_overlay.h"
+#include "chess/ui/overlays/settings_overlay.h"
 
 #include <fmt/format.h>
 #include <imgui.h>
@@ -13,16 +15,17 @@ namespace chess::ui {
 
 namespace {
 
-float kCellScaleFactor = 0.8;
-float kBorderSizeX = 480;
-float kBorderSizeY = 480;
-
-ImU32 kHoveredCellColour = IM_COL32(0, 0, 0, 100);
-ImU32 kSelectedCellColour = IM_COL32(0, 255, 0, 100);
-
 ImU32 kBlackColour = IM_COL32(0, 0, 0, 255);
 
 }  // namespace
+
+float ChessUI::kCellScaleFactor = 0.8;
+float ChessUI::kBorderSizeX = 480;
+float ChessUI::kBorderSizeY = 480;
+
+ImU32 ChessUI::kHoveredCellColour = IM_COL32(0, 0, 0, 100);
+ImU32 ChessUI::kSelectedCellColour = IM_COL32(0, 255, 0, 100);
+ImU32 ChessUI::kValidMoveCellColour = IM_COL32(0, 0, 255, 100);
 
 void ChessUI::update() {
   update_main_menu_bar();
@@ -31,6 +34,13 @@ void ChessUI::update() {
 
 void ChessUI::update_main_menu_bar() {
   if (ImGui::BeginMainMenuBar()) {
+    if (ImGui::BeginMenu("Game##game_menu")) {
+      if (ImGui::MenuItem("Reset game")) {
+        game_->reset();
+      }
+      ImGui::EndMenu();
+    }
+
     {
       auto it = std::find_if(overlays.begin(), overlays.end(), [](const std::unique_ptr<ImGuiOverlay>& overlay) {
         return overlay->get_name() == "SettingsOverlay";
@@ -159,9 +169,9 @@ void ChessUI::load_assets() {
   }
 }
 void ChessUI::update_drawable() {
-  ImVec2 window_pos = ImGui::GetWindowPos();
+//  ImVec2 window_pos = ImGui::GetWindowPos();
   ImVec2 window_size = ImGui::GetIO().DisplaySize;
-  ImVec2 window_center = ImVec2((window_pos.x + window_size.x) / 2, (window_pos.y + window_size.y) / 2);
+  ImVec2 window_center = ImVec2(window_size.x / 2, window_size.y / 2);
   ImGui::GetForegroundDrawList()->AddCircle(window_center, 10, IM_COL32(0, 255, 0, 200), 0, 10);
 
   Image* board_image = asset_to_image_[ChessAssetConstants::BOARD];
@@ -187,9 +197,9 @@ void ChessUI::update_drawable() {
       ImGui::GetForegroundDrawList()->AddText({cell_x, cell_y}, kBlackColour,
                                               fmt::format("{},{}", row, column).c_str());
       ImGui::GetForegroundDrawList()->AddText({cell_x, cell_y + 10}, kBlackColour,
-                                              fmt::format("{:.1f},{:.1f}", cell_x, cell_y).c_str());
+                                              fmt::format("{:.0f},{:.0f}", cell_x, cell_y).c_str());
 
-      const core::ChessboardCell& chessboard_cell = chessboard[row][column];
+      const std::optional<core::Figure>& chessboard_cell = chessboard[row][column];
       if (!chessboard_cell) {
         continue;
       }
@@ -210,17 +220,17 @@ void ChessUI::update_drawable() {
   // Draw boarder labels
   for (size_t i = 0; i < chessboard.size(); ++i) {
     {
-      float pos_x = chessboard_ui_.cells[i][0].x - chessboard_ui_.cell_x_size / 2;
-      float pos_y = chessboard_ui_.cells[i][0].y;
+      float pos_x = chessboard_ui_.cells[i][0].px - chessboard_ui_.cell_x_size / 2;
+      float pos_y = chessboard_ui_.cells[i][0].py;
 
       ImGui::GetForegroundDrawList()->AddText({pos_x, pos_y}, kBlackColour,
                                               fmt::format("{}", 1 + chessboard.size() - i - 1).c_str());
     }
     {
-      float pos_x = chessboard_ui_.cells.back()[i].x + chessboard_ui_.cell_x_size / 2;
-      float pos_y = chessboard_ui_.cells.back()[i].y + chessboard_ui_.cell_y_size * 1.5;
+      float pos_x = chessboard_ui_.cells.back()[i].px + chessboard_ui_.cell_x_size / 2;
+      float pos_y = chessboard_ui_.cells.back()[i].py + chessboard_ui_.cell_y_size * 1.5;
 
-      ImGui::GetForegroundDrawList()->AddText({pos_x, pos_y}, kBlackColour, fmt::format("{}", 1 + i).c_str());
+      ImGui::GetForegroundDrawList()->AddText({pos_x, pos_y}, kBlackColour, fmt::format("{}", static_cast<char>('A' + i)).c_str());
     }
   }
 
@@ -229,8 +239,18 @@ void ChessUI::update_drawable() {
   if (hovered_cell_) {
     fill_cell(*hovered_cell_, kHoveredCellColour);
   }
+
   if (selected_cell_) {
     fill_cell(*selected_cell_, kSelectedCellColour);
+    assert(game_);
+    std::vector<core::Move> valid_moves = game_->get_valid_moves(*selected_cell_);
+    if (valid_moves.empty()) {
+      selected_cell_ = std::nullopt;
+    } else {
+      for (const core::Move& move : valid_moves) {
+        fill_cell(move.to, kValidMoveCellColour);
+      }
+    }
   }
 }
 
@@ -244,13 +264,13 @@ void ChessUI::cursor_click_callback(float x, float y) {
     return;
   }
   if (selected_cell_) {
-    std::optional<CellIndex> new_selected_cell = get_cell(x, y);
+    std::optional<core::CellIndex> new_selected_cell = get_cell(x, y);
     if (!new_selected_cell) {
       selected_cell_ = std::nullopt;
       return;
     }
     auto move =
-        core::Move{selected_cell_->row, selected_cell_->column, new_selected_cell->row, new_selected_cell->column};
+        core::Move{selected_cell_->x, selected_cell_->y, new_selected_cell->x, new_selected_cell->y};
     if (game_->is_valid_move(move)) {
       if (game_->is_white_move()) {
         player1_->move(move);
@@ -262,8 +282,8 @@ void ChessUI::cursor_click_callback(float x, float y) {
   } else {
     selected_cell_ = get_cell(x, y);
     if (selected_cell_) {
-      const core::ChessboardCell& chessboard_cell =
-          game_->get_chessboard()[selected_cell_->row][selected_cell_->column];
+      const std::optional<core::Figure>& chessboard_cell =
+          game_->get_chessboard()[selected_cell_->x][selected_cell_->y];
       if (!chessboard_cell) {
         selected_cell_ = std::nullopt;
         return;
@@ -276,21 +296,21 @@ void ChessUI::cursor_click_callback(float x, float y) {
   }
 }
 
-std::optional<ChessUI::CellIndex> ChessUI::get_cell(float x, float y) const {
-  if (x < chessboard_ui_.cells[0][0].x || x > chessboard_ui_.cells[0].back().x + chessboard_ui_.cell_x_size ||
-      y < chessboard_ui_.cells[0][0].y || y > chessboard_ui_.cells.back()[0].y + chessboard_ui_.cell_y_size) {
+std::optional<core::CellIndex> ChessUI::get_cell(float x, float y) const {
+  if (x < chessboard_ui_.cells[0][0].px || x > chessboard_ui_.cells[0].back().px + chessboard_ui_.cell_x_size ||
+      y < chessboard_ui_.cells[0][0].py || y > chessboard_ui_.cells.back()[0].py + chessboard_ui_.cell_y_size) {
     return std::nullopt;
   }
-  int cell_x_index = (x - chessboard_ui_.cells[0][0].x) / chessboard_ui_.cell_x_size;
-  int cell_y_index = (y - chessboard_ui_.cells[0][0].y) / chessboard_ui_.cell_y_size;
-  return CellIndex{cell_y_index, cell_x_index};
+  int cell_x_index = (x - chessboard_ui_.cells[0][0].px) / chessboard_ui_.cell_x_size;
+  int cell_y_index = (y - chessboard_ui_.cells[0][0].py) / chessboard_ui_.cell_y_size;
+  return core::CellIndex{cell_y_index, cell_x_index};
 }
-void ChessUI::fill_cell(const ChessUI::CellIndex& cell_index, int32_t colour) {
+void ChessUI::fill_cell(const core::CellIndex& cell_index, int32_t colour) {
   ImGui::GetForegroundDrawList()->AddRectFilled(
-      {chessboard_ui_.cells[cell_index.row][cell_index.column].x,
-       chessboard_ui_.cells[cell_index.row][cell_index.column].y},
-      {chessboard_ui_.cells[cell_index.row][cell_index.column].x + chessboard_ui_.cell_x_size,
-       chessboard_ui_.cells[cell_index.row][cell_index.column].y + chessboard_ui_.cell_y_size},
+      {chessboard_ui_.cells[cell_index.x][cell_index.y].px,
+       chessboard_ui_.cells[cell_index.x][cell_index.y].py},
+      {chessboard_ui_.cells[cell_index.x][cell_index.y].px + chessboard_ui_.cell_x_size,
+       chessboard_ui_.cells[cell_index.x][cell_index.y].py + chessboard_ui_.cell_y_size},
       colour);
 }
 void ChessUI::setup_game() {
@@ -320,45 +340,5 @@ void PlayerUI::move(core::Move move) {
 }
 
 PlayerUI::PlayerUI(std::weak_ptr<core::ChessGame> game) : game_(std::move(game)) {}
-DebugMouseOverlay::DebugMouseOverlay(ChessUI& chess_ui) : chess_ui_(chess_ui) {}
-
-void DebugMouseOverlay::update() {
-  if (ImGui::Begin("Debug mouse")) {
-    if (chess_ui_.hovered_cell_) {
-      ImGui::Text("%s", fmt::format("Hovered cell: row={}; column={}", chess_ui_.hovered_cell_->row,
-                                    chess_ui_.hovered_cell_->column)
-                            .c_str());
-    } else {
-      ImGui::Text("Hovered cell: None");
-    }
-
-    if (chess_ui_.selected_cell_) {
-      ImGui::Text("%s", fmt::format("Selected cell: row={}; column={}", chess_ui_.selected_cell_->row,
-                                    chess_ui_.selected_cell_->column)
-                            .c_str());
-    } else {
-      ImGui::Text("Selected cell: None");
-    }
-  }
-  ImGui::End();
-}
-std::string DebugMouseOverlay::get_name() const {
-  static const std::string name = "DebugMouseOverlay";
-  return name;
-}
-SettingsOverlay::SettingsOverlay(ChessUI& chess_ui) : chess_ui_(chess_ui) {}
-
-void SettingsOverlay::update() {
-  if (ImGui::Begin("Settings")) {
-    if (ImGui::SliderFloat("kCellScaleFactor", &kCellScaleFactor, 0, 1)) {}
-    if (ImGui::SliderFloat("kBorderSizeX", &kBorderSizeX, 0, 1000)) {}
-    if (ImGui::SliderFloat("kBorderSizeY", &kBorderSizeY, 0, 1000)) {}
-  }
-  ImGui::End();
-}
-std::string SettingsOverlay::get_name() const {
-  static const std::string name = "SettingsOverlay";
-  return name;
-}
 
 }  // namespace chess::ui
