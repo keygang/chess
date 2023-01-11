@@ -92,9 +92,59 @@ std::vector<Move> ChessGame::get_valid_moves(const CellIndex& from_index) const 
     }
   };
 
+  auto add_king_moves = [&from_index, this, &moves, &figure](){
+    ChessGame fake_game(*this);
+
+    // TODO: make it const
+    CellIndex king_cell_index = {0, 4};
+    CellIndex left_rook_index = {0, 0};
+    CellIndex right_rook_index = {0, 7};
+    if (figure->is_white) {
+      king_cell_index = {7, 4};
+      left_rook_index = {7, 0};
+      right_rook_index = {7, 7};
+    }
+    if (!is_moved(king_cell_index)) {
+      if (fake_game.is_check_move({{0, 0}, {0, 0}})) {
+        return;
+      }
+
+      if (!is_moved(left_rook_index)) {
+        bool is_valid = true;
+        for (int to_y = king_cell_index.y - 1; to_y >= king_cell_index.y - 2; --to_y) {
+          CellIndex to = {king_cell_index.x, to_y};
+          if (chessboard_[to] || fake_game.is_check_move({from_index, to})) {
+            is_valid = false;
+            break;
+          }
+        }
+        if (is_valid) {
+          moves.push_back({from_index, {king_cell_index.x, 2}});
+        }
+      }
+      if (!is_moved(right_rook_index)) {
+        bool is_valid = true;
+        for (int to_y = king_cell_index.y + 1; to_y <= king_cell_index.y + 2; ++to_y) {
+          CellIndex to = {king_cell_index.x, to_y};
+          if (chessboard_[to] || fake_game.is_check_move({from_index, to})) {
+            is_valid = false;
+            break;
+          }
+        }
+        if (is_valid) {
+          moves.push_back({from_index, {king_cell_index.x, 6}});
+        }
+      }
+    }
+  };
+
   switch (figure->figure_name) {
     case FigureName::PAWN: {
       add_pawn_moves();
+      break;
+    }
+    case FigureName::KING: {
+      add_king_moves();
       break;
     }
   }
@@ -104,18 +154,11 @@ std::vector<Move> ChessGame::get_valid_moves(const CellIndex& from_index) const 
 
   ChessGame fake_game(*this);
   for (size_t i = 0; i < moves.size(); ++i) {
-    fake_game.push_move(moves[i]);
-    std::optional<CellIndex> king_cell_index = fake_game.chessboard_.find_figure(Figure{FigureName::KING, is_white_move()});
-    assert(king_cell_index);
-    std::vector<Move> enemy_moves = fake_game.chessboard_.get_all_attack_moves(fake_game.is_white_move());
-    if (std::find_if(enemy_moves.begin(), enemy_moves.end(), [&king_cell_index](const Move& enemy_move){
-          return enemy_move.to == king_cell_index;
-        }) != enemy_moves.end()) {
+    if (fake_game.is_check_move(moves[i])) {
       std::swap(moves[i], moves.back());
       moves.pop_back();
       i -= 1;
     }
-    fake_game.pop_move();
   }
 
   return moves;
@@ -168,13 +211,59 @@ void ChessGame::pop_move() {
 }
 
 void ChessGame::push_move(const Move& move) {
+  bool castling = false;
   if (is_pawn_en_passant(move)) {
     chessboard_[moves_.back().to] = std::nullopt;
+  } else {
+    castling = is_castling(move);
   }
   std::optional<Figure>& cell = chessboard_[move.from];
   chessboard_[move.to] = cell;
   cell = std::nullopt;
+  if (castling) {
+    if (move.to.y == 2) {
+      std::swap(chessboard_[{move.from.x, move.from.y - 1}], chessboard_[{move.to.x, 0}]);
+    } else {
+      std::swap(chessboard_[{move.from.x, move.from.y + 1}], chessboard_[{move.to.x, 7}]);
+    }
+  }
   moves_.push_back(move);
+}
+
+bool ChessGame::is_check_move(const Move& move) {
+  push_move(move);
+  std::optional<CellIndex> king_cell_index = chessboard_.find_figure(Figure{FigureName::KING, !is_white_move()});
+  assert(king_cell_index);
+  std::vector<Move> enemy_moves = chessboard_.get_all_attack_moves(is_white_move());
+  if (std::find_if(enemy_moves.begin(), enemy_moves.end(), [&king_cell_index](const Move& enemy_move){
+        return enemy_move.to == king_cell_index;
+      }) != enemy_moves.end()) {
+    pop_move();
+    return true;
+  }
+  pop_move();
+  return false;
+}
+
+bool ChessGame::is_moved(const CellIndex& cell_index) const {
+  for (const Move& move : moves_) {
+    if (move.from == cell_index || move.to == cell_index) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool ChessGame::is_castling(const Move& move) const {
+  const std::optional<Figure> figure = chessboard_[move.from];
+  if (!figure) {
+    return false;
+  }
+  if (figure->figure_name != FigureName::KING) {
+    return false;
+  }
+
+  return std::abs(move.from.y - move.to.y) == 2;
 }
 
 }  // namespace chess::core

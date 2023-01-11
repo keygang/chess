@@ -241,7 +241,6 @@ void ChessUI::update_drawable() {
   }
 
   if (selected_cell_) {
-    fill_cell(*selected_cell_, kSelectedCellColour);
     assert(game_);
     std::vector<core::Move> valid_moves = game_->get_valid_moves(*selected_cell_);
     if (valid_moves.empty()) {
@@ -250,6 +249,7 @@ void ChessUI::update_drawable() {
       for (const core::Move& move : valid_moves) {
         fill_cell(move.to, kValidMoveCellColour);
       }
+      fill_cell(*selected_cell_, kSelectedCellColour);
     }
   }
 }

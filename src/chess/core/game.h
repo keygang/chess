@@ -23,6 +23,9 @@ private:
   // Only for valid moves
   void push_move(const Move& move);
   bool is_pawn_en_passant(const Move& move) const;
+  bool is_castling(const Move& move) const;
+  bool is_check_move(const Move& move);
+  bool is_moved(const CellIndex& cell_index) const;
 
   Chessboard chessboard_;
 
