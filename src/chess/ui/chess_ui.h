@@ -44,6 +44,11 @@ private:
     std::array<std::array<Cell, core::kRowsNum>, core::kColumnsNum> cells;
   };
 
+  struct PromotionUI {
+    float start_px = -1;
+    float start_py = -1;
+  };
+
 public:
   static float kCellScaleFactor;
   static float kBorderSizeX;
@@ -61,10 +66,11 @@ private:
   void update_main_menu_bar();
   void update_chessboard_images();
   void update_chessboard_buttons();
-  void update_drawable();
+  void draw_chessboard();
+  void draw_promotion();
   void update_cursor();
 
-  std::optional<core::CellIndex> get_cell(float x, float y) const;
+  core::CellIndex get_cell(float x, float y) const;
 
   void fill_cell(const core::CellIndex& cell_index, int32_t colour);
 
@@ -74,6 +80,7 @@ private:
   std::list<Image> image_assets_;
   std::unordered_map<ChessAssetConstants, Image*> asset_to_image_;
   ChessboardUI chessboard_ui_;
+  std::optional<PromotionUI> promotion_ui_ = std::nullopt;
   std::optional<core::CellIndex> hovered_cell_;
   std::optional<core::CellIndex> selected_cell_;
 

@@ -10,6 +10,7 @@
 #include <iostream>
 #include <optional>
 #include <utility>
+#include <set>
 
 namespace chess::ui {
 
@@ -71,7 +72,8 @@ void ChessUI::update_main_menu_bar() {
 }
 
 void ChessUI::update_chessboard_images() {
-  update_drawable();
+  draw_chessboard();
+  draw_promotion();
 }
 
 ChessUI::ChessUI() {
@@ -168,7 +170,7 @@ void ChessUI::load_assets() {
     asset_to_image_[ChessAssetConstants::QUEEN_WHITE] = &image_assets_.back();
   }
 }
-void ChessUI::update_drawable() {
+void ChessUI::draw_chessboard() {
 //  ImVec2 window_pos = ImGui::GetWindowPos();
   ImVec2 window_size = ImGui::GetIO().DisplaySize;
   ImVec2 window_center = ImVec2(window_size.x / 2, window_size.y / 2);
@@ -258,19 +260,39 @@ void ChessUI::update_chessboard_buttons() {}
 
 void ChessUI::cursor_pos_callback(float x, float y) {
   hovered_cell_ = get_cell(x, y);
+  const core::Chessboard& chessboard = game_ ? game_->get_chessboard() : core::kDefaultChessboard;
+  if (!chessboard.is_in_range(*hovered_cell_)) {
+    if (!promotion_ui_) {
+      hovered_cell_ = std::nullopt;
+      return;
+    }
+
+    // TODO:
+    static const std::set<core::CellIndex> cells = {
+        {2, 8},
+        {3, 8},
+        {4, 8},
+        {5, 8},
+    };
+    if (!cells.count(*hovered_cell_)) {
+      hovered_cell_ = std::nullopt;
+      return;
+    }
+  }
 }
 void ChessUI::cursor_click_callback(float x, float y) {
   if (!game_) {
     return;
   }
+  const core::Chessboard& chessboard = game_ ? game_->get_chessboard() : core::kDefaultChessboard;
   if (selected_cell_) {
-    std::optional<core::CellIndex> new_selected_cell = get_cell(x, y);
-    if (!new_selected_cell) {
+    core::CellIndex new_selected_cell = get_cell(x, y);
+    if (!chessboard.is_in_range(new_selected_cell)) {
       selected_cell_ = std::nullopt;
       return;
     }
     auto move =
-        core::Move{selected_cell_->x, selected_cell_->y, new_selected_cell->x, new_selected_cell->y};
+        core::Move{selected_cell_->x, selected_cell_->y, new_selected_cell.x, new_selected_cell.y};
     if (game_->is_valid_move(move)) {
       if (game_->is_white_move()) {
         player1_->move(move);
@@ -281,7 +303,7 @@ void ChessUI::cursor_click_callback(float x, float y) {
     selected_cell_ = std::nullopt;
   } else {
     selected_cell_ = get_cell(x, y);
-    if (selected_cell_) {
+    if (chessboard.is_in_range(*selected_cell_)) {
       const std::optional<core::Figure>& chessboard_cell =
           game_->get_chessboard()[selected_cell_->x][selected_cell_->y];
       if (!chessboard_cell) {
@@ -292,25 +314,39 @@ void ChessUI::cursor_click_callback(float x, float y) {
       if ((figure.is_white && !game_->is_white_move()) || (!figure.is_white && game_->is_white_move())) {
         selected_cell_ = std::nullopt;
       }
+    } else {
+      if (!promotion_ui_) {
+        selected_cell_ = std::nullopt;
+        return;
+      }
+
+      // TODO:
+      static const std::set<core::CellIndex> cells = {
+          {2, 8},
+          {3, 8},
+          {4, 8},
+          {5, 8},
+      };
+      if (!cells.count(*selected_cell_)) {
+        selected_cell_ = std::nullopt;
+        return;
+      }
+      game_->move(core::ChessGame::kValidPromotions[selected_cell_->x - 2]);
     }
   }
 }
 
-std::optional<core::CellIndex> ChessUI::get_cell(float x, float y) const {
-  if (x < chessboard_ui_.cells[0][0].px || x > chessboard_ui_.cells[0].back().px + chessboard_ui_.cell_x_size ||
-      y < chessboard_ui_.cells[0][0].py || y > chessboard_ui_.cells.back()[0].py + chessboard_ui_.cell_y_size) {
-    return std::nullopt;
-  }
+core::CellIndex ChessUI::get_cell(float x, float y) const {
   int cell_x_index = (x - chessboard_ui_.cells[0][0].px) / chessboard_ui_.cell_x_size;
   int cell_y_index = (y - chessboard_ui_.cells[0][0].py) / chessboard_ui_.cell_y_size;
   return core::CellIndex{cell_y_index, cell_x_index};
 }
 void ChessUI::fill_cell(const core::CellIndex& cell_index, int32_t colour) {
+  float cell_start_px = chessboard_ui_.cells[0][0].px + cell_index.y * chessboard_ui_.cell_x_size;
+  float cell_start_py = chessboard_ui_.cells[0][0].py + cell_index.x * chessboard_ui_.cell_y_size;
   ImGui::GetForegroundDrawList()->AddRectFilled(
-      {chessboard_ui_.cells[cell_index.x][cell_index.y].px,
-       chessboard_ui_.cells[cell_index.x][cell_index.y].py},
-      {chessboard_ui_.cells[cell_index.x][cell_index.y].px + chessboard_ui_.cell_x_size,
-       chessboard_ui_.cells[cell_index.x][cell_index.y].py + chessboard_ui_.cell_y_size},
+      {cell_start_px,cell_start_py},
+      {cell_start_px + chessboard_ui_.cell_x_size, cell_start_py + chessboard_ui_.cell_y_size},
       colour);
 }
 void ChessUI::setup_game() {
@@ -331,6 +367,35 @@ ChessUI::~ChessUI() {}
 void ChessUI::create_overlays() {
   overlays.push_back(std::make_unique<DebugMouseOverlay>(*this));
   overlays.push_back(std::make_unique<SettingsOverlay>(*this));
+}
+void ChessUI::draw_promotion() {
+  if (game_ && game_->is_promotion()) {
+    float promotion_start_x = chessboard_ui_.cells[0][0].px + game_->get_chessboard()[0].size() * chessboard_ui_.cell_x_size;
+    float promotion_start_y = chessboard_ui_.cells[0][0].py + 2 * chessboard_ui_.cell_y_size;
+    promotion_ui_ = PromotionUI{promotion_start_x, promotion_start_y};
+
+    int i = 0;
+    for (const core::FigureName& figure_name : core::ChessGame::kValidPromotions) {
+      float cell_x = promotion_start_x;
+      float cell_y = promotion_start_y + i * chessboard_ui_.cell_y_size;
+
+      core::Figure figure = {figure_name, game_->is_white_move()};
+      ChessAssetConstants asset_constant = figure_to_asset_constant(figure);
+
+      if (asset_to_image_.count(asset_constant)) {
+        Image* figure_image = asset_to_image_[asset_constant];
+        float scale = std::min(chessboard_ui_.cell_x_size / figure_image->get_width(), chessboard_ui_.cell_y_size / figure_image->get_height());
+        scale *= kCellScaleFactor;
+        float figure_start_x = (cell_x * 2 + chessboard_ui_.cell_x_size) / 2 - figure_image->get_width() * scale / 2;
+        float figure_start_y = (cell_y * 2 + chessboard_ui_.cell_y_size) / 2 - figure_image->get_height() * scale / 2;
+        ImGui::draw_image(figure_image, figure_start_x, figure_start_y, scale);
+      }
+
+      i += 1;
+    }
+  } else {
+    promotion_ui_ = std::nullopt;
+  }
 }
 
 void PlayerUI::move(core::Move move) {
