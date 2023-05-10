@@ -8,4 +8,14 @@ void Module::move(Module* to) {
                         std::make_move_iterator(systems_.end()));
 }
 
+void Module::update() {
+    for (std::unique_ptr<System>& system : systems_) {
+        system->update();
+    }
+}
+
+void Module::register_system(std::unique_ptr<core::System> system) {
+    systems_.push_back(std::move(system));
+}
+
 }

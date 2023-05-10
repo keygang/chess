@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(${PROJECT_SOURCE_DIR}/thirdparty/fmt.cmake)
 include(${PROJECT_SOURCE_DIR}/thirdparty/imgui.cmake)
-include(${PROJECT_SOURCE_DIR}/thirdparty/glfw.cmake)
-include(${PROJECT_SOURCE_DIR}/thirdparty/stb.cmake)
+include(${PROJECT_SOURCE_DIR}/thirdparty/sdl.cmake)
+include(${PROJECT_SOURCE_DIR}/thirdparty/sdl_image.cmake)
 
 include_directories(src)
 add_subdirectory(src)

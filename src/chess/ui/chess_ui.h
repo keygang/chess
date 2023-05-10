@@ -6,6 +6,8 @@
 
 #include <chess/core/game.h>
 
+#include <engine/core/module.h>
+
 #include <imgui.h>
 
 #include <list>
@@ -22,12 +24,12 @@ private:
   std::weak_ptr<core::ChessGame> game_;
 };
 
-class ChessUI {
+class ChessUI : public engine::core::System {
 public:
   ChessUI();
-  ~ChessUI();
+  ~ChessUI() override;
 
-  void update();
+  void update() override;
 
   void cursor_pos_callback(float x, float y);
   void cursor_click_callback(float x, float y);

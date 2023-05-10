@@ -2,8 +2,9 @@
 
 namespace chess::ui {
 
-Image::Image(GLuint id, int width, int height) : id_(id), width_(width), height_(height) {}
-GLuint Image::get_id() const {
+Image::Image(int id, int width, int height) : id_(id), width_(width), height_(height) {}
+
+int Image::get_id() const {
   return id_;
 }
 int Image::get_width() const {

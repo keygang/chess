@@ -10,17 +10,20 @@ class Engine;
 
 class Module {
 public:
-    virtual ~Module() = 0;
+    virtual ~Module() = default;
 
     virtual void init() = 0;
     virtual void term() = 0;
 
+    void update();
+
     void move(Module* to);
+
+protected:
+    void register_system(std::unique_ptr<core::System> system);
 
 private:
     std::vector<std::unique_ptr<core::System>> systems_;
-
-    friend Engine;
 };
 
 }
