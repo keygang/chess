@@ -36,4 +36,4 @@ private:
     ImGuiIO* imgui_io_ = nullptr;
 };
 
-}
+}  // namespace engine::window

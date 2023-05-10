@@ -9,4 +9,4 @@ void ChessUIModule::init() {
 
 void ChessUIModule::term() {}
 
-}
+}  // namespace chess::ui

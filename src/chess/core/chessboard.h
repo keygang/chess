@@ -12,44 +12,44 @@ static const int kRowsNum = 8;
 static const int kColumnsNum = 8;
 
 struct CellIndex {
-  int x = -1;
-  int y = -1;
+    int x = -1;
+    int y = -1;
 
-  bool operator==(const CellIndex& rhs) const;
-  bool operator!=(const CellIndex& rhs) const;
-  bool operator<(const CellIndex& rhs) const;
+    bool operator==(const CellIndex& rhs) const;
+    bool operator!=(const CellIndex& rhs) const;
+    bool operator<(const CellIndex& rhs) const;
 };
 
 struct Move {
-  CellIndex from;
-  CellIndex to;
+    CellIndex from;
+    CellIndex to;
 
-  bool operator==(const Move& rhs) const;
-  bool operator!=(const Move& rhs) const;
-  bool operator<(const Move& rhs) const;
+    bool operator==(const Move& rhs) const;
+    bool operator!=(const Move& rhs) const;
+    bool operator<(const Move& rhs) const;
 };
 
 class Chessboard {
 public:
-  Chessboard(std::initializer_list<std::array<std::optional<Figure>, kRowsNum>> init_list);
-  explicit Chessboard(const std::array<std::array<std::optional<Figure>, kRowsNum>, kColumnsNum>& chessboard);
+    Chessboard(std::initializer_list<std::array<std::optional<Figure>, kRowsNum>> init_list);
+    explicit Chessboard(const std::array<std::array<std::optional<Figure>, kRowsNum>, kColumnsNum>& chessboard);
 
-  size_t size() const;
+    size_t size() const;
 
-  std::array<std::optional<Figure>, kRowsNum>& operator[](size_t index);
-  const std::array<std::optional<Figure>, kRowsNum>& operator[](size_t index) const;
+    std::array<std::optional<Figure>, kRowsNum>& operator[](size_t index);
+    const std::array<std::optional<Figure>, kRowsNum>& operator[](size_t index) const;
 
-  std::optional<Figure>& operator[](const CellIndex& index);
-  const std::optional<Figure>& operator[](const CellIndex& index) const;
+    std::optional<Figure>& operator[](const CellIndex& index);
+    const std::optional<Figure>& operator[](const CellIndex& index) const;
 
-  bool is_in_range(const Move& move) const;
-  bool is_in_range(const CellIndex& cell_index) const;
-  std::optional<CellIndex> find_figure(const Figure& figure) const;
-  std::vector<Move> get_attack_moves(const CellIndex& from_index) const;
-  std::vector<Move> get_all_attack_moves(bool is_white) const;
+    bool is_in_range(const Move& move) const;
+    bool is_in_range(const CellIndex& cell_index) const;
+    std::optional<CellIndex> find_figure(const Figure& figure) const;
+    std::vector<Move> get_attack_moves(const CellIndex& from_index) const;
+    std::vector<Move> get_all_attack_moves(bool is_white) const;
 
 private:
-  std::array<std::array<std::optional<Figure>, kRowsNum>, kColumnsNum> chessboard_;
+    std::array<std::array<std::optional<Figure>, kRowsNum>, kColumnsNum> chessboard_;
 };
 
 static const Chessboard kDefaultChessboard = {{{{

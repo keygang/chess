@@ -26,4 +26,4 @@ private:
     std::unique_ptr<window::Window> window_ = nullptr;
 };
 
-}
+}  // namespace engine

@@ -15,6 +15,7 @@ public:
 
     float cell_x_size = -1;
     float cell_y_size = -1;
+
 private:
     std::array<std::array<Cell, core::kRowsNum>, core::kColumnsNum> cells;
 };

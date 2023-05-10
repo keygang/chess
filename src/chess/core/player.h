@@ -6,7 +6,7 @@ namespace chess::core {
 
 class PlayerI {
 public:
-  virtual void move(Move move) = 0;
+    virtual void move(Move move) = 0;
 };
 
-}
+}  // namespace chess::core

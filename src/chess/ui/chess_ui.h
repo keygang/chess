@@ -17,78 +17,78 @@ namespace chess::ui {
 
 class PlayerUI : public core::PlayerI {
 public:
-  explicit PlayerUI(std::weak_ptr<core::ChessGame> game);
-  void move(core::Move move) override;
+    explicit PlayerUI(std::weak_ptr<core::ChessGame> game);
+    void move(core::Move move) override;
 
 private:
-  std::weak_ptr<core::ChessGame> game_;
+    std::weak_ptr<core::ChessGame> game_;
 };
 
 class ChessUI : public engine::core::System {
 public:
-  ChessUI();
-  ~ChessUI() override;
+    ChessUI();
+    ~ChessUI() override;
 
-  void update() override;
+    void update() override;
 
-  void cursor_pos_callback(float x, float y);
-  void cursor_click_callback(float x, float y);
+    void cursor_pos_callback(float x, float y);
+    void cursor_click_callback(float x, float y);
 
 private:
-  struct ChessboardUI {
-    struct Cell {
-      float px = -1;
-      float py = -1;
+    struct ChessboardUI {
+        struct Cell {
+            float px = -1;
+            float py = -1;
+        };
+
+        float cell_x_size = -1;
+        float cell_y_size = -1;
+        std::array<std::array<Cell, core::kRowsNum>, core::kColumnsNum> cells;
     };
 
-    float cell_x_size = -1;
-    float cell_y_size = -1;
-    std::array<std::array<Cell, core::kRowsNum>, core::kColumnsNum> cells;
-  };
-
-  struct PromotionUI {
-    float start_px = -1;
-    float start_py = -1;
-  };
+    struct PromotionUI {
+        float start_px = -1;
+        float start_py = -1;
+    };
 
 public:
-  static float kCellScaleFactor;
-  static float kBorderSizeX;
-  static float kBorderSizeY;
+    static float kCellScaleFactor;
+    static float kBorderSizeX;
+    static float kBorderSizeY;
 
-  static ImU32 kHoveredCellColour;
-  static ImU32 kSelectedCellColour;
-  static ImU32 kValidMoveCellColour;
+    static ImU32 kHoveredCellColour;
+    static ImU32 kSelectedCellColour;
+    static ImU32 kValidMoveCellColour;
 
 private:
-  void load_assets();
-  void setup_game();
-  void create_overlays();
+    void load_assets();
+    void setup_game();
+    void create_overlays();
 
-  void update_main_menu_bar();
-  void update_chessboard_images();
-  void update_chessboard_buttons();
-  void draw_chessboard();
-  void draw_promotion();
-  void update_cursor();
+    void update_main_menu_bar();
+    void update_chessboard_images();
+    void update_chessboard_buttons();
+    void draw_chessboard();
+    void draw_promotion();
+    void update_cursor();
 
-  core::CellIndex get_cell(float x, float y) const;
+    core::CellIndex get_cell(float x, float y) const;
 
-  void fill_cell(const core::CellIndex& cell_index, int32_t colour);
+    void fill_cell(const core::CellIndex& cell_index, int32_t colour);
 
-  std::shared_ptr<core::PlayerI> player1_ = nullptr;
-  std::shared_ptr<core::PlayerI> player2_ = nullptr;
-  std::shared_ptr<core::ChessGame> game_ = nullptr;
-  std::list<Image> image_assets_;
-  std::unordered_map<ChessAssetConstants, Image*> asset_to_image_;
-  ChessboardUI chessboard_ui_;
-  std::optional<PromotionUI> promotion_ui_ = std::nullopt;
-  std::optional<core::CellIndex> hovered_cell_;
-  std::optional<core::CellIndex> selected_cell_;
+    std::shared_ptr<core::PlayerI> player1_ = nullptr;
+    std::shared_ptr<core::PlayerI> player2_ = nullptr;
+    std::shared_ptr<core::ChessGame> game_ = nullptr;
+    std::list<Image> image_assets_;
+    std::unordered_map<ChessAssetConstants, Image*> asset_to_image_;
+    ChessboardUI chessboard_ui_;
+    std::optional<PromotionUI> promotion_ui_ = std::nullopt;
+    std::optional<core::CellIndex> hovered_cell_;
+    std::optional<core::CellIndex> selected_cell_;
 
-  std::vector<std::unique_ptr<ImGuiOverlay>> overlays;
+    std::vector<std::unique_ptr<ImGuiOverlay>> overlays;
 
-  friend class DebugMouseOverlay;
+    friend class DebugMouseOverlay;
 };
 
 }  // namespace chess::ui

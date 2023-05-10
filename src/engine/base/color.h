@@ -11,8 +11,9 @@ public:
 
     float operator[](size_t index) const;
     float& operator[](size_t index);
+
 private:
     std::array<float, 4> color_ = {0};
 };
 
-}
+}  // namespace engine::base

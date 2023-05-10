@@ -26,4 +26,4 @@ private:
     std::vector<std::unique_ptr<core::System>> systems_;
 };
 
-}
+}  // namespace engine::core

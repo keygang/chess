@@ -10,4 +10,4 @@ public:
     void term() override;
 };
 
-}
+}  // namespace chess::ui

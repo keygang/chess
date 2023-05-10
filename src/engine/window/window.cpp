@@ -86,10 +86,8 @@ void Window::render() {
     // Rendering
     ImGui::Render();
     glViewport(0, 0, imgui_io_->DisplaySize.x, imgui_io_->DisplaySize.y);
-    glClearColor(params_.clear_color[0] * params_.clear_color[3],
-                 params_.clear_color[1] * params_.clear_color[3],
-                 params_.clear_color[2] * params_.clear_color[3],
-                 params_.clear_color[3]);
+    glClearColor(params_.clear_color[0] * params_.clear_color[3], params_.clear_color[1] * params_.clear_color[3],
+                 params_.clear_color[2] * params_.clear_color[3], params_.clear_color[3]);
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(window_);
