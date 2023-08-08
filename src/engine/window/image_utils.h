@@ -12,4 +12,4 @@ public:
     static void render_image(const IImage* image, int px, int py, int w, int h);
 };
 
-}
+}  // namespace engine::window

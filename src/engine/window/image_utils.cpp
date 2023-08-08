@@ -20,4 +20,4 @@ void ImageUtils::render_image(const IImage* image, int px, int py, int w, int h)
     renderer->render(image, px, py, w, h);
 }
 
-}
+}  // namespace engine::window

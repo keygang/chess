@@ -1,5 +1,5 @@
-#include "chess/ui/assets_utils.h"
 #include "chess/ui/chess_ui_system.h"
+#include "chess/ui/assets_utils.h"
 #include "chess/ui/overlays/debug_mouse_overlay.h"
 #include "chess/ui/overlays/settings_overlay.h"
 
@@ -95,20 +95,32 @@ void ChessUISystem::load_assets() {
     asset_to_image_[ChessAssetConstants::BOARD] = load_image_with_assert("chess_set3/boards/1_480x480.png");
 
     // Black
-    asset_to_image_[ChessAssetConstants::ROOK_BLACK] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_rook_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::BISHOP_BLACK] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_bishop_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::KNIGHT_BLACK] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_knight_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::KING_BLACK] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_king_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::PAWN_BLACK] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_pawn_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::QUEEN_BLACK] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_queen_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::ROOK_BLACK] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_rook_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::BISHOP_BLACK] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_bishop_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::KNIGHT_BLACK] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_knight_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::KING_BLACK] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_king_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::PAWN_BLACK] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_pawn_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::QUEEN_BLACK] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/b_queen_1x_ns.png");
 
     // White
-    asset_to_image_[ChessAssetConstants::ROOK_WHITE] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_rook_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::BISHOP_WHITE] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_bishop_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::KNIGHT_WHITE] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_knight_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::KING_WHITE] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_king_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::PAWN_WHITE] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_pawn_1x_ns.png");
-    asset_to_image_[ChessAssetConstants::QUEEN_WHITE] = load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_queen_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::ROOK_WHITE] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_rook_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::BISHOP_WHITE] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_bishop_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::KNIGHT_WHITE] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_knight_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::KING_WHITE] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_king_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::PAWN_WHITE] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_pawn_1x_ns.png");
+    asset_to_image_[ChessAssetConstants::QUEEN_WHITE] =
+        load_image_with_assert("chess_set2/PNGs/No shadow/1x/w_queen_1x_ns.png");
 }
 void ChessUISystem::draw_chessboard() {
     //  ImVec2 window_pos = ImGui::GetWindowPos();
@@ -123,9 +135,7 @@ void ChessUISystem::draw_chessboard() {
     int board_start_x = window_size.width / 2 - board_half_width;
     int board_start_y = window_size.height / 2 - board_half_height;
 
-    ImageUtils::render_image(board_image, board_start_x, board_start_y,
-                             kBorderSizeX,
-                             kBorderSizeY);
+    ImageUtils::render_image(board_image, board_start_x, board_start_y, kBorderSizeX, kBorderSizeY);
 
     const core::Chessboard& chessboard = game_ ? game_->get_chessboard() : core::kDefaultChessboard;
     float cell_x_size = kBorderSizeX / chessboard.size();
@@ -153,11 +163,12 @@ void ChessUISystem::draw_chessboard() {
 
             if (asset_to_image_.count(asset_constant)) {
                 const engine::window::IImage* figure_image = asset_to_image_[asset_constant];
-                float scale =
-                    std::min(cell_x_size / figure_image->width(), cell_y_size / figure_image->height());
+                float scale = std::min(cell_x_size / figure_image->width(), cell_y_size / figure_image->height());
                 scale *= kCellScaleFactor;
-                float figure_start_x = (cell_x * 2 + cell_x_size) / 2 - figure_image->width() * scale / 2;
-                float figure_start_y = (cell_y * 2 + cell_y_size) / 2 - figure_image->height() * scale / 2;
+                float figure_start_x =
+                    (cell_x * 2 + chessboard_ui_.cell_x_size) / 2 - figure_image->width() * scale / 2;
+                float figure_start_y =
+                    (cell_y * 2 + chessboard_ui_.cell_y_size) / 2 - figure_image->height() * scale / 2;
                 ImageUtils::render_image(figure_image, figure_start_x, figure_start_y, scale);
             }
         }
@@ -327,15 +338,15 @@ void ChessUISystem::draw_promotion() {
             ChessAssetConstants asset_constant = figure_to_asset_constant(figure);
 
             if (asset_to_image_.count(asset_constant)) {
-//                Image* figure_image = asset_to_image_[asset_constant];
-//                float scale = std::min(chessboard_ui_.cell_x_size / figure_image->get_width(),
-//                                       chessboard_ui_.cell_y_size / figure_image->get_height());
-//                scale *= kCellScaleFactor;
-//                float figure_start_x =
-//                    (cell_x * 2 + chessboard_ui_.cell_x_size) / 2 - figure_image->get_width() * scale / 2;
-//                float figure_start_y =
-//                    (cell_y * 2 + chessboard_ui_.cell_y_size) / 2 - figure_image->get_height() * scale / 2;
-//                ImGui::draw_image(figure_image, figure_start_x, figure_start_y, scale);
+                const engine::window::IImage* figure_image = asset_to_image_[asset_constant];
+                float scale = std::min(chessboard_ui_.cell_x_size / figure_image->width(),
+                                       chessboard_ui_.cell_y_size / figure_image->height());
+                scale *= kCellScaleFactor;
+                float figure_start_x =
+                    (cell_x * 2 + chessboard_ui_.cell_x_size) / 2 - figure_image->width() * scale / 2;
+                float figure_start_y =
+                    (cell_y * 2 + chessboard_ui_.cell_y_size) / 2 - figure_image->height() * scale / 2;
+                ImageUtils::render_image(figure_image, figure_start_x, figure_start_y, scale);
             }
 
             i += 1;

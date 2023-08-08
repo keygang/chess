@@ -9,7 +9,7 @@
 
 namespace engine {
 
-class Engine : public base::Singleton<Engine>{
+class Engine : public base::Singleton<Engine> {
 public:
     struct Params {
         window::Window::Params window_params;

@@ -24,8 +24,7 @@ int Window::init() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_WindowFlags window_flags =
-        (SDL_WindowFlags)(  SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     window_ = SDL_CreateWindow("Chess", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, params_.window_width,
                                params_.window_height, window_flags);
     gl_context_ = SDL_GL_CreateContext(window_);
@@ -88,7 +87,6 @@ bool Window::new_frame() {
     ImGui::NewFrame();
 
     static bool ok = true;
-//    ImGui::SetNextWindowPos(ImVec2(10, 10));
     ImGui::ShowDemoWindow(&ok);
 
     return true;
@@ -101,14 +99,10 @@ void Window::render() {
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
     SDL_RenderSetScale(renderer_, imgui_io_->DisplayFramebufferScale.x, imgui_io_->DisplayFramebufferScale.y);
-    SDL_SetRenderDrawColor(renderer_,
-                           (Uint8)(params_.clear_color[0] * 255),
-                           (Uint8)(params_.clear_color[1] * 255),
-                           (Uint8)(params_.clear_color[2] * 255),
-                           (Uint8)(params_.clear_color[3] * 255));
+    SDL_SetRenderDrawColor(renderer_, (Uint8)(params_.clear_color[0] * 255), (Uint8)(params_.clear_color[1] * 255),
+                           (Uint8)(params_.clear_color[2] * 255), (Uint8)(params_.clear_color[3] * 255));
     SDL_RenderPresent(renderer_);
     SDL_RenderClear(renderer_);
-
 
     SDL_Delay(1000 / 60);
 }

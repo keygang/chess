@@ -4,7 +4,7 @@
 
 namespace engine::base {
 
-template<typename T>
+template <typename T>
 using Rect = std::array<T, 4>;
 
 }

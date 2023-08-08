@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/window/image.h"
 #include "engine/core/manager.h"
+#include "engine/window/image.h"
 
 namespace engine::window {
 
@@ -16,4 +16,4 @@ private:
     SDL_Renderer* renderer_;
 };
 
-}
+}  // namespace engine::window

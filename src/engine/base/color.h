@@ -13,6 +13,7 @@ public:
     float& operator[](size_t index);
 
     static Color kWhite;
+    static Color kBlack;
 
 private:
     std::array<float, 4> color_ = {0};
