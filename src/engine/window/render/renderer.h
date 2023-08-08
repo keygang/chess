@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/base/color.h"
 #include "engine/core/manager.h"
 #include "engine/window/image.h"
 
@@ -11,6 +12,9 @@ public:
 
     void render(const IImage* image, int px, int py, float scale = 1.f);
     void render(const IImage* image, int px, int py, int w, int h);
+
+    // rect = {px, py, w, h}
+    void render(const base::Rect<int>& rect, const base::Color& color);
 
 private:
     SDL_Renderer* renderer_;

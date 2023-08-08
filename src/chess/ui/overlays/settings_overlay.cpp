@@ -32,12 +32,30 @@ void SettingsOverlay::update() {
         if (ImGui::SliderFloat("kCellScaleFactor", &chess::ui::ChessUISystem::kCellScaleFactor, 0, 1)) {}
         if (ImGui::SliderInt("kBorderSizeX", &chess::ui::ChessUISystem::kBorderSizeX, 0, 1000)) {}
         if (ImGui::SliderInt("kBorderSizeY", &chess::ui::ChessUISystem::kBorderSizeY, 0, 1000)) {}
-        //        if (ImGui::ColorButton("Background Color", background_color_)) {}
-        //        ImGui::SameLine(10);
         if (ImGui::CollapsingHeader("Background Color")) {
             if (ImGui::ColorPicker4("Background Color pick", &background_color_.x)) {}
             if (ImGui::Button("Apply color")) {
                 set_background_color(background_color_);
+            }
+        }
+        if (ImGui::CollapsingHeader("Chess game colors")) {
+            if (ImGui::CollapsingHeader("Chessboard color 1")) {
+                if (ImGui::ColorPicker4("Chessboard color 1 pick", &chess::ui::ChessUISystem::kChessboardColour1[0])) {}
+            }
+            if (ImGui::CollapsingHeader("Chessboard color 2")) {
+                if (ImGui::ColorPicker4("Chessboard color 2 pick", &chess::ui::ChessUISystem::kChessboardColour2[0])) {}
+            }
+            if (ImGui::CollapsingHeader("Valid Move Cell Colour")) {
+                if (ImGui::ColorPicker4("Valid Move Cell Colour pick",
+                                        &chess::ui::ChessUISystem::kValidMoveCellColour[0])) {}
+            }
+            if (ImGui::CollapsingHeader("Hovered Cell Colour")) {
+                if (ImGui::ColorPicker4("Hovered Cell Colour pick", &chess::ui::ChessUISystem::kHoveredCellColour[0])) {
+                }
+            }
+            if (ImGui::CollapsingHeader("Selected Cell Colour")) {
+                if (ImGui::ColorPicker4("Selected Cell Colour pick",
+                                        &chess::ui::ChessUISystem::kSelectedCellColour[0])) {}
             }
         }
     }

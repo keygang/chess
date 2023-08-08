@@ -5,6 +5,7 @@
 
 #include <chess/core/game.h>
 
+#include <engine/base/color.h>
 #include <engine/core/module.h>
 #include <engine/window/image.h>
 #include <engine/window/types.h>
@@ -56,9 +57,12 @@ public:
     static int kBorderSizeX;
     static int kBorderSizeY;
 
-    static ImU32 kHoveredCellColour;
-    static ImU32 kSelectedCellColour;
-    static ImU32 kValidMoveCellColour;
+    static engine::base::Color kHoveredCellColour;
+    static engine::base::Color kSelectedCellColour;
+    static engine::base::Color kValidMoveCellColour;
+
+    static engine::base::Color kChessboardColour1;
+    static engine::base::Color kChessboardColour2;
 
 private:
     void load_assets();
@@ -69,10 +73,12 @@ private:
     void update_chessboard_images();
     void update_chessboard_buttons();
     void draw_chessboard();
+    void draw_figures();
+    void draw_actions();
     void draw_promotion();
     void update_cursor();
 
-    void fill_cell(const core::CellIndex& cell_index, int32_t colour);
+    void fill_cell(const core::CellIndex& cell_index, const engine::base::Color& color);
 
     std::shared_ptr<core::PlayerI> player1_ = nullptr;
     std::shared_ptr<core::PlayerI> player2_ = nullptr;
