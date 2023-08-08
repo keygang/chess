@@ -6,4 +6,4 @@ add_library(engine
 
 find_package(OpenGL)
 
-target_link_libraries(engine SYSTEM imgui_glfw SDL2-static SDL2_image OpenGL::GL fmt)
+target_link_libraries(engine SYSTEM imgui_sdl SDL2-static SDL2_image OpenGL::GL fmt)

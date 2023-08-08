@@ -12,6 +12,8 @@ public:
     float operator[](size_t index) const;
     float& operator[](size_t index);
 
+    static Color kWhite;
+
 private:
     std::array<float, 4> color_ = {0};
 };

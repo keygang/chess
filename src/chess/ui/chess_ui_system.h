@@ -1,12 +1,12 @@
 #pragma once
 
 #include "chess/ui/chess_asset_constants.h"
-#include "chess/ui/image.h"
 #include "chess/ui/overlays/imgui_overlay.h"
 
 #include <chess/core/game.h>
 
 #include <engine/core/module.h>
+#include <engine/window/image.h>
 
 #include <imgui.h>
 
@@ -24,10 +24,10 @@ private:
     std::weak_ptr<core::ChessGame> game_;
 };
 
-class ChessUI : public engine::core::System {
+class ChessUISystem : public engine::core::System {
 public:
-    ChessUI();
-    ~ChessUI() override;
+    ChessUISystem();
+    ~ChessUISystem() override;
 
     void update() override;
 
@@ -79,12 +79,11 @@ private:
     std::shared_ptr<core::PlayerI> player1_ = nullptr;
     std::shared_ptr<core::PlayerI> player2_ = nullptr;
     std::shared_ptr<core::ChessGame> game_ = nullptr;
-    std::list<Image> image_assets_;
-    std::unordered_map<ChessAssetConstants, Image*> asset_to_image_;
     ChessboardUI chessboard_ui_;
     std::optional<PromotionUI> promotion_ui_ = std::nullopt;
     std::optional<core::CellIndex> hovered_cell_;
     std::optional<core::CellIndex> selected_cell_;
+    std::unordered_map<ChessAssetConstants, engine::window::IImage*> asset_to_image_;
 
     std::vector<std::unique_ptr<ImGuiOverlay>> overlays;
 

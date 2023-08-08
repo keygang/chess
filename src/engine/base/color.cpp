@@ -12,4 +12,6 @@ float& Color::operator[](size_t index) {
     return color_[index];
 }
 
+Color Color::kWhite = Color({0.1, 1, 1, 1});
+
 }  // namespace engine::base

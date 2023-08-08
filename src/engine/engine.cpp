@@ -1,19 +1,20 @@
 #include "engine/engine.h"
+#include "engine/window/image.h"
+#include "engine/window/render/renderer.h"
 
 namespace engine {
 
-Engine::Engine(Params params) : params_(std::move(params)) {
+int Engine::init() {
     window_ = std::make_unique<window::Window>(params_.window_params);
-}
 
-int Engine::init(core::Module* module) {
     if (window_) {
         if (int code = window_->init()) {
             return code;
         }
-    }
 
-    module->init();
+        managers_.emplace_back(std::make_unique<window::ImageManager>(window_->get_renderer()));
+        managers_.emplace_back(std::make_unique<window::Renderer>(window_->get_renderer()));
+    }
 
     return 0;
 }
@@ -29,7 +30,8 @@ void Engine::term(core::Module* module) {
 int Engine::run(std::unique_ptr<core::Module> module) {
     assert(module);
 
-    init(module.get());
+    init();
+    module->init();
 
     while (window_->new_frame()) {
         module->update();
@@ -40,6 +42,14 @@ int Engine::run(std::unique_ptr<core::Module> module) {
     term(module.get());
 
     return 0;
+}
+
+void Engine::set_params(Engine::Params params) {
+    params_ = params;
+}
+
+const window::Window* Engine::get_window() const {
+    return window_.get();
 }
 
 }  // namespace engine

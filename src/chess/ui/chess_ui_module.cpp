@@ -1,10 +1,10 @@
 #include "chess/ui/chess_ui_module.h"
-#include "chess/ui/chess_ui.h"
+#include "chess/ui/chess_ui_system.h"
 
 namespace chess::ui {
 
 void ChessUIModule::init() {
-    register_system(std::make_unique<ChessUI>());
+    register_system(std::make_unique<ChessUISystem>());
 }
 
 void ChessUIModule::term() {}

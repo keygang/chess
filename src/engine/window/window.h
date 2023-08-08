@@ -14,11 +14,12 @@ public:
     struct Params {
         int window_width = 1280;
         int window_height = 720;
-        base::Color clear_color;
+        base::Color clear_color = base::Color::kWhite;
     };
 
 public:
     explicit Window(Params params);
+    ~Window();
 
     int init();
     void term();
@@ -26,12 +27,22 @@ public:
     bool new_frame();
     void render();
 
+    struct Size {
+        int width = 0;
+        int height = 0;
+    };
+
+    Size get_size() const;
+
+    SDL_Renderer* get_renderer();
+
 private:
     Params params_;
 
     SDL_Window* window_ = nullptr;
     SDL_GLContext gl_context_ = nullptr;
-    SDL_Event sdl_event_;
+    SDL_Event sdl_event_{};
+    SDL_Renderer* renderer_ = nullptr;
 
     ImGuiIO* imgui_io_ = nullptr;
 };

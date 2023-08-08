@@ -5,7 +5,7 @@
 
 namespace chess::ui {
 
-DebugMouseOverlay::DebugMouseOverlay(ChessUI& chess_ui) : chess_ui_(chess_ui) {}
+DebugMouseOverlay::DebugMouseOverlay(ChessUISystem& chess_ui) : chess_ui_(chess_ui) {}
 
 void DebugMouseOverlay::update() {
     if (ImGui::Begin("Debug mouse")) {

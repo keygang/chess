@@ -4,13 +4,13 @@
 
 namespace chess::ui {
 
-SettingsOverlay::SettingsOverlay(ChessUI& chess_ui) : chess_ui_(chess_ui) {}
+SettingsOverlay::SettingsOverlay(ChessUISystem& chess_ui) : chess_ui_(chess_ui) {}
 
 void SettingsOverlay::update() {
     if (ImGui::Begin("Settings")) {
-        if (ImGui::SliderFloat("kCellScaleFactor", &chess::ui::ChessUI::kCellScaleFactor, 0, 1)) {}
-        if (ImGui::SliderFloat("kBorderSizeX", &chess::ui::ChessUI::kBorderSizeX, 0, 1000)) {}
-        if (ImGui::SliderFloat("kBorderSizeY", &chess::ui::ChessUI::kBorderSizeY, 0, 1000)) {}
+        if (ImGui::SliderFloat("kCellScaleFactor", &chess::ui::ChessUISystem::kCellScaleFactor, 0, 1)) {}
+        if (ImGui::SliderFloat("kBorderSizeX", &chess::ui::ChessUISystem::kBorderSizeX, 0, 1000)) {}
+        if (ImGui::SliderFloat("kBorderSizeY", &chess::ui::ChessUISystem::kBorderSizeY, 0, 1000)) {}
     }
     ImGui::End();
 }

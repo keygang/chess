@@ -11,7 +11,8 @@ int main() {
     params.window_params.window_width = kWindowWidth;
     params.window_params.window_height = kWindowHeight;
 
-    auto engine = engine::Engine(std::move(params));
+    auto* engine = engine::Engine::get_instance();
+    engine->set_params(params);
 
-    return engine.run(std::make_unique<chess::ui::ChessUIModule>());
+    return engine->run(std::make_unique<chess::ui::ChessUIModule>());
 }
