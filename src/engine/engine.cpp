@@ -46,10 +46,17 @@ int Engine::run(std::unique_ptr<core::Module> module) {
 
 void Engine::set_params(Engine::Params params) {
     params_ = params;
+    if (window_) {
+        window_->set_params(params_.window_params);
+    }
 }
 
 const window::Window* Engine::get_window() const {
     return window_.get();
+}
+
+const Engine::Params& Engine::get_params() const {
+    return params_;
 }
 
 }  // namespace engine

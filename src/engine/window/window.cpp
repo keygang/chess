@@ -122,4 +122,8 @@ Window::Size Window::get_size() const {
     return {w, h};
 }
 
+void Window::set_params(Window::Params params) {
+    params_ = params;
+}
+
 }  // namespace engine::window

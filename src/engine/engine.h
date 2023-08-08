@@ -17,6 +17,7 @@ public:
 
     Engine() = default;
 
+    const Params& get_params() const;
     void set_params(Params params);
 
     int run(std::unique_ptr<core::Module> module);
@@ -39,7 +40,7 @@ private:
     void term(core::Module* module);
 
 private:
-    Params params_;
+    mutable Params params_;
     std::unique_ptr<window::Window> window_ = nullptr;
 
     std::vector<std::unique_ptr<core::Manager>> managers_;

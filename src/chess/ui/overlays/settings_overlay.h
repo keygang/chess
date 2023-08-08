@@ -11,6 +11,7 @@ public:
 
 private:
     ChessUISystem& chess_ui_;
+    ImVec4 background_color_;
 };
 
 }  // namespace chess::ui

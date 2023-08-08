@@ -126,10 +126,11 @@ void ChessUISystem::draw_chessboard() {
     //  ImVec2 window_pos = ImGui::GetWindowPos();
 
     const auto* engine = engine::Engine::get_instance();
-    const engine::window::Window* window = engine->get_window();
-    Window::Size window_size = window->get_size();
 
     IImage* board_image = asset_to_image_[ChessAssetConstants::BOARD];
+
+    const engine::window::Window* window = engine->get_window();
+    Window::Size window_size = window->get_size();
     int board_half_width = kBorderSizeX / 2;
     int board_half_height = kBorderSizeY / 2;
     int board_start_x = window_size.width / 2 - board_half_width;
@@ -149,10 +150,10 @@ void ChessUISystem::draw_chessboard() {
             float cell_y = board_start_y + row * cell_y_size;
 
             chessboard_ui_.cells[row][column] = ChessboardUI::Cell{cell_x, cell_y};
-            ImGui::GetForegroundDrawList()->AddText({cell_x, cell_y}, kBlackColour,
-                                                    fmt::format("{},{}", row, column).c_str());
-            ImGui::GetForegroundDrawList()->AddText({cell_x, cell_y + 10}, kBlackColour,
-                                                    fmt::format("{:.0f},{:.0f}", cell_x, cell_y).c_str());
+//            ImGui::GetForegroundDrawList()->AddText({cell_x, cell_y}, kBlackColour,
+//                                                    fmt::format("{},{}", row, column).c_str());
+//            ImGui::GetForegroundDrawList()->AddText({cell_x, cell_y + 10}, kBlackColour,
+//                                                    fmt::format("{:.0f},{:.0f}", cell_x, cell_y).c_str());
 
             const std::optional<core::Figure>& chessboard_cell = chessboard[row][column];
             if (!chessboard_cell) {
@@ -169,6 +170,13 @@ void ChessUISystem::draw_chessboard() {
                     (cell_x * 2 + chessboard_ui_.cell_x_size) / 2 - figure_image->width() * scale / 2;
                 float figure_start_y =
                     (cell_y * 2 + chessboard_ui_.cell_y_size) / 2 - figure_image->height() * scale / 2;
+                if (selected_cell_ &&
+                    selected_cell_ == core::CellIndex{static_cast<int>(row), static_cast<int>(column)} &&
+                    selected_processing_cell_) {
+                    ImVec2 cursor_pos = ImGui::GetMousePos();
+                    figure_start_x += cursor_pos.x - selected_processing_cell_.value().px;
+                    figure_start_y += cursor_pos.y - selected_processing_cell_.value().py;
+                }
                 ImageUtils::render_image(figure_image, figure_start_x, figure_start_y, scale);
             }
         }
@@ -236,8 +244,11 @@ void ChessUISystem::cursor_pos_callback(float x, float y) {
         }
     }
 }
-void ChessUISystem::cursor_click_callback(float x, float y) {
+void ChessUISystem::cursor_down_callback(float x, float y) {
     if (!game_) {
+        return;
+    }
+    if (selected_processing_cell_) {
         return;
     }
     const core::Chessboard& chessboard = game_ ? game_->get_chessboard() : core::kDefaultChessboard;
@@ -268,7 +279,10 @@ void ChessUISystem::cursor_click_callback(float x, float y) {
             const core::Figure& figure = *chessboard_cell;
             if ((figure.is_white && !game_->is_white_move()) || (!figure.is_white && game_->is_white_move())) {
                 selected_cell_ = std::nullopt;
+                return;
             }
+            selected_processing_cell_ = {x, y};
+            return;
         } else {
             if (!promotion_ui_) {
                 selected_cell_ = std::nullopt;
@@ -287,8 +301,36 @@ void ChessUISystem::cursor_click_callback(float x, float y) {
                 return;
             }
             game_->move(core::ChessGame::kValidPromotions[selected_cell_->x - 2]);
+            selected_cell_ = std::nullopt;
         }
     }
+    if (selected_processing_cell_) {
+        if (!game_) {
+            return;
+        }
+        const core::Chessboard& chessboard = game_ ? game_->get_chessboard() : core::kDefaultChessboard;
+
+        core::CellIndex new_selected_cell = get_cell(x, y);
+        if (!chessboard.is_in_range(new_selected_cell)) {
+            selected_cell_ = std::nullopt;
+            return;
+        }
+        auto move = core::Move{selected_cell_->x, selected_cell_->y, new_selected_cell.x, new_selected_cell.y};
+        if (game_->is_valid_move(move)) {
+            if (game_->is_white_move()) {
+                player1_->move(move);
+            } else {
+                player2_->move(move);
+            }
+        }
+        selected_cell_ = std::nullopt;
+        selected_processing_cell_ = std::nullopt;
+    }
+
+    selected_processing_cell_ = {};
+}
+
+void ChessUISystem::cursor_release_callback(float x, float y) {
 }
 
 core::CellIndex ChessUISystem::get_cell(float x, float y) const {
@@ -313,7 +355,10 @@ void ChessUISystem::update_cursor() {
 
     cursor_pos_callback(cursor_pos.x, cursor_pos.y);
     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-        cursor_click_callback(cursor_pos.x, cursor_pos.y);
+        cursor_down_callback(cursor_pos.x, cursor_pos.y);
+    }
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+        selected_processing_cell_ = std::nullopt;
     }
 }
 ChessUISystem::~ChessUISystem() {}

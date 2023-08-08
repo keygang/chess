@@ -32,7 +32,8 @@ public:
     void update() override;
 
     void cursor_pos_callback(float x, float y);
-    void cursor_click_callback(float x, float y);
+    void cursor_down_callback(float x, float y);
+    void cursor_release_callback(float x, float y);
 
 private:
     struct ChessboardUI {
@@ -84,6 +85,8 @@ private:
     std::optional<core::CellIndex> hovered_cell_;
     std::optional<core::CellIndex> selected_cell_;
     std::unordered_map<ChessAssetConstants, engine::window::IImage*> asset_to_image_;
+
+    std::optional<ChessboardUI::Cell> selected_processing_cell_;
 
     std::vector<std::unique_ptr<ImGuiOverlay>> overlays;
 

@@ -40,7 +40,6 @@ Image* ImageManager::load_image(const std::string& path) {
         return nullptr;
     }
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, imageSurface);
-    //    SDL_RenderCopy(renderer_, texture, nullptr, nullptr);
     images_.emplace_back(std::make_unique<Image>(texture, imageSurface->w, imageSurface->h));
     return images_.back().get();
 }

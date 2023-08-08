@@ -21,6 +21,8 @@ public:
     explicit Window(Params params);
     ~Window();
 
+    void set_params(Params params);
+
     int init();
     void term();
 
