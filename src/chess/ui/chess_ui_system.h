@@ -32,7 +32,7 @@ public:
     void update() override;
 
     void cursor_pos_callback(float x, float y);
-    void cursor_down_callback(float x, float y);
+    void cursor_clicked_callback(float x, float y);
     void cursor_release_callback(float x, float y);
 
 private:

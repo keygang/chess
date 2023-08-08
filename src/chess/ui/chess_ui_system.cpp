@@ -7,7 +7,6 @@
 
 #include <fmt/format.h>
 #include <imgui.h>
-#include <iostream>
 #include <optional>
 #include <set>
 #include <utility>
@@ -23,8 +22,8 @@ ImU32 kBlackColour = IM_COL32(0, 0, 0, 255);
 }  // namespace
 
 float ChessUISystem::kCellScaleFactor = 0.8;
-float ChessUISystem::kBorderSizeX = 380;
-float ChessUISystem::kBorderSizeY = 380;
+float ChessUISystem::kBorderSizeX = 580;
+float ChessUISystem::kBorderSizeY = 580;
 
 ImU32 ChessUISystem::kHoveredCellColour = IM_COL32(0, 0, 0, 100);
 ImU32 ChessUISystem::kSelectedCellColour = IM_COL32(0, 255, 0, 100);
@@ -244,7 +243,7 @@ void ChessUISystem::cursor_pos_callback(float x, float y) {
         }
     }
 }
-void ChessUISystem::cursor_down_callback(float x, float y) {
+void ChessUISystem::cursor_clicked_callback(float x, float y) {
     if (!game_) {
         return;
     }
@@ -355,7 +354,11 @@ void ChessUISystem::update_cursor() {
 
     cursor_pos_callback(cursor_pos.x, cursor_pos.y);
     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-        cursor_down_callback(cursor_pos.x, cursor_pos.y);
+        cursor_clicked_callback(cursor_pos.x, cursor_pos.y);
+    }
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && selected_processing_cell_) {
+        selected_processing_cell_ = std::nullopt;
+        cursor_clicked_callback(cursor_pos.x, cursor_pos.y);
     }
     if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
         selected_processing_cell_ = std::nullopt;
