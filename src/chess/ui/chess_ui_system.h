@@ -7,6 +7,7 @@
 
 #include <engine/core/module.h>
 #include <engine/window/image.h>
+#include <engine/window/types.h>
 
 #include <imgui.h>
 
@@ -37,25 +38,23 @@ public:
 
 private:
     struct ChessboardUI {
-        struct Cell {
-            float px = -1;
-            float py = -1;
-        };
+        int board_start_x = -1;
+        int board_start_y = -1;
+        int cell_x_size = -1;
+        int cell_y_size = -1;
 
-        float cell_x_size = -1;
-        float cell_y_size = -1;
-        std::array<std::array<Cell, core::kRowsNum>, core::kColumnsNum> cells;
-    };
-
-    struct PromotionUI {
-        float start_px = -1;
-        float start_py = -1;
+        engine::window::WindowPos get_cell(core::CellIndex cell_index) const;
+        core::CellIndex get_cell_index(engine::window::WindowPos window_pos) const;
+        float get_figure_scale(const engine::window::IImage* figure_image) const;
+        engine::window::WindowPos get_figure_start_pos(engine::window::WindowPos cell_pos,
+                                                       const engine::window::IImage* figure_image,
+                                                       float figure_scale) const;
     };
 
 public:
     static float kCellScaleFactor;
-    static float kBorderSizeX;
-    static float kBorderSizeY;
+    static int kBorderSizeX;
+    static int kBorderSizeY;
 
     static ImU32 kHoveredCellColour;
     static ImU32 kSelectedCellColour;
@@ -73,20 +72,17 @@ private:
     void draw_promotion();
     void update_cursor();
 
-    core::CellIndex get_cell(float x, float y) const;
-
     void fill_cell(const core::CellIndex& cell_index, int32_t colour);
 
     std::shared_ptr<core::PlayerI> player1_ = nullptr;
     std::shared_ptr<core::PlayerI> player2_ = nullptr;
     std::shared_ptr<core::ChessGame> game_ = nullptr;
     ChessboardUI chessboard_ui_;
-    std::optional<PromotionUI> promotion_ui_ = std::nullopt;
     std::optional<core::CellIndex> hovered_cell_;
     std::optional<core::CellIndex> selected_cell_;
     std::unordered_map<ChessAssetConstants, engine::window::IImage*> asset_to_image_;
 
-    std::optional<ChessboardUI::Cell> selected_processing_cell_;
+    std::optional<engine::window::WindowPos> selected_processing_pos_;
 
     std::vector<std::unique_ptr<ImGuiOverlay>> overlays;
 
