@@ -59,4 +59,8 @@ const Engine::Params& Engine::get_params() const {
     return params_;
 }
 
+core::Entity* Engine::get_world() {
+    return &world_entity_;
+}
+
 }  // namespace engine

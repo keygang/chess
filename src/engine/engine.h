@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/base/singleton.h"
+#include "engine/core/entity.h"
 #include "engine/core/manager.h"
 #include "engine/core/module.h"
 #include "engine/window/window.h"
@@ -35,6 +36,8 @@ public:
         return static_cast<T*>(it->get());
     }
 
+    core::Entity* get_world();
+
 private:
     int init();
     void term(core::Module* module);
@@ -44,6 +47,7 @@ private:
     std::unique_ptr<window::Window> window_ = nullptr;
 
     std::vector<std::unique_ptr<core::Manager>> managers_;
+    core::Entity world_entity_;
 };
 
 }  // namespace engine

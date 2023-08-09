@@ -1,4 +1,5 @@
 #include "chess/ui/overlays/settings_overlay.h"
+#include "chess/ui/single_components/chessbard_ui_single_component.h"
 
 #include <engine/engine.h>
 
@@ -28,8 +29,11 @@ SettingsOverlay::SettingsOverlay(ChessUISystem& chess_ui)
     : chess_ui_(chess_ui), background_color_(get_current_background_color()) {}
 
 void SettingsOverlay::update() {
+    auto* chessboard_ui_sc = chess_ui_.get_world()->get_component_w<ChessboardUISingleComponent>();
+    assert(chessboard_ui_sc);
+
     if (ImGui::Begin("Settings")) {
-        if (ImGui::SliderFloat("kCellScaleFactor", &chess::ui::ChessUISystem::kCellScaleFactor, 0, 1)) {}
+        if (ImGui::SliderFloat("cell_scale_factor", &chessboard_ui_sc->cell_scale_factor, 0, 1)) {}
         if (ImGui::SliderInt("kBorderSizeX", &chess::ui::ChessUISystem::kBorderSizeX, 0, 1000)) {}
         if (ImGui::SliderInt("kBorderSizeY", &chess::ui::ChessUISystem::kBorderSizeY, 0, 1000)) {}
         if (ImGui::CollapsingHeader("Background Color")) {
