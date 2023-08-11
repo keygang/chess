@@ -36,6 +36,7 @@ void SettingsOverlay::update() {
         if (ImGui::SliderFloat("cell_scale_factor", &chessboard_ui_sc->cell_scale_factor, 0, 1)) {}
         if (ImGui::SliderInt("kBorderSizeX", &chess::ui::ChessUISystem::kBorderSizeX, 0, 1000)) {}
         if (ImGui::SliderInt("kBorderSizeY", &chess::ui::ChessUISystem::kBorderSizeY, 0, 1000)) {}
+        if (ImGui::Checkbox("Chessboard white side", &chessboard_ui_sc->white_side)) {}
         if (ImGui::CollapsingHeader("Background Color")) {
             if (ImGui::ColorPicker4("Background Color pick", &background_color_.x)) {}
             if (ImGui::Button("Apply color")) {

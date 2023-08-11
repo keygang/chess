@@ -44,8 +44,10 @@ void ChessboardInputSystem::cursor_pos_callback(ChessboardInputSystem::SystemCon
             return;
         }
 
-        if (!system_context.chessboard_ui_sc->promotion_choice_cells.count(
-                *system_context.important_cells_sc->hovered_cell)) {
+        if (std::find(system_context.chessboard_ui_sc->promotion_choice_cells.begin(),
+                      system_context.chessboard_ui_sc->promotion_choice_cells.end(),
+                      *system_context.important_cells_sc->hovered_cell) ==
+            system_context.chessboard_ui_sc->promotion_choice_cells.end()) {
             system_context.important_cells_sc->hovered_cell = std::nullopt;
             return;
         }
@@ -87,8 +89,10 @@ void ChessboardInputSystem::cursor_clicked_callback(ChessboardInputSystem::Syste
                 return;
             }
 
-            if (!system_context.chessboard_ui_sc->promotion_choice_cells.count(
-                    *system_context.important_cells_sc->selected_cell)) {
+            if (std::find(system_context.chessboard_ui_sc->promotion_choice_cells.begin(),
+                          system_context.chessboard_ui_sc->promotion_choice_cells.end(),
+                          *system_context.important_cells_sc->hovered_cell) ==
+                system_context.chessboard_ui_sc->promotion_choice_cells.end()) {
                 system_context.important_cells_sc->selected_cell = std::nullopt;
                 return;
             }
