@@ -118,9 +118,8 @@ void ChessboardInputSystem::cursor_release_callback(ChessboardInputSystem::Syste
         } else {
             system_context.game_state_sc->player2->move(move);
         }
-    } else {
-        system_context.important_cells_sc->selected_cell = std::nullopt;
     }
+    system_context.important_cells_sc->selected_cell = std::nullopt;
 }
 
 }  // namespace chess::ui

@@ -315,7 +315,6 @@ bool ChessGame::is_valid_simple_move(const Move& move) const {
         return false;
     }
 
-    const std::optional<Figure>& figure_to = chessboard_[move.to];
     if (figure_from->is_white && !is_white_move()) {
         return false;
     }

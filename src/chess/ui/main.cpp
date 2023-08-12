@@ -5,7 +5,6 @@
 
 static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
-static const uint32_t kDelayMs = 30000;
 
 int main() {
     engine::Engine::Params params;
