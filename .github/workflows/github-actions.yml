@@ -18,7 +18,7 @@ jobs:
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  macos-tests:
+  macos-build-and-tests:
     runs-on: macos-10.15
     steps:
       - name: Check out repository code
