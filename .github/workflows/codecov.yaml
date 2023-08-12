@@ -1,0 +1,30 @@
+#name: Codecov
+#on: [push]
+#jobs:
+#  run:
+#    runs-on: ubuntu-18.04
+#    steps:
+#      - name: Check out repository code
+#        uses: actions/checkout@v2
+#      - name: Install lcov
+#        run: |
+#          sudo apt update
+#          sudo apt install lcov
+#      - name: Build project
+#        run: mkdir build && cd build && cmake -DCODECOVERAGE=ON -DCMAKE_BUILD_TYPE=Debug .. && make
+#        env:
+#          CC: gcc-7
+#          CXX: g++-7
+#
+#      - name: Run chess core tests
+#        run: ./build/src/chess/core/tests/chess_tests
+#      - name: Upload code coverage
+#        run: |
+#          lcov --directory . --capture --output-file coverage.info
+#          lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
+#          lcov --list coverage.info
+#          bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
+#        env:
+#          CC: gcc-10
+#          CXX: g++-10
+#      - run: echo "🍏 This job's status is ${{ job.status }}."
