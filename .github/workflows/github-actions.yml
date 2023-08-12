@@ -18,16 +18,16 @@ jobs:
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  macos-build-and-tests:
-    runs-on: macos-10.15
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Build project
-        run: mkdir build && cd build && cmake .. && make
-        env:
-          CC: clang
-          CXX: clang++
-      - name: Run chess core tests
-        run: ./build/src/chess/core/tests/chess_tests
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+#  macos-build-and-tests:
+#    runs-on: macos-10.15
+#    steps:
+#      - name: Check out repository code
+#        uses: actions/checkout@v2
+#      - name: Build project
+#        run: mkdir build && cd build && cmake .. && make
+#        env:
+#          CC: clang
+#          CXX: clang++
+#      - name: Run chess core tests
+#        run: ./build/src/chess/core/tests/chess_tests
+#      - run: echo "🍏 This job's status is ${{ job.status }}."
