@@ -12,6 +12,7 @@ namespace engine::window {
 
 class IImage {
 public:
+    virtual ~IImage() = default;
     virtual int width() const = 0;
     virtual int height() const = 0;
 

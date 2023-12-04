@@ -34,7 +34,7 @@ public:
     Chessboard(std::initializer_list<std::array<std::optional<Figure>, kRowsNum>> init_list);
     explicit Chessboard(const std::array<std::array<std::optional<Figure>, kRowsNum>, kColumnsNum>& chessboard);
 
-    size_t size() const;
+    int size() const;
 
     std::array<std::optional<Figure>, kRowsNum>& operator[](size_t index);
     const std::array<std::optional<Figure>, kRowsNum>& operator[](size_t index) const;

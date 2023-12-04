@@ -132,9 +132,9 @@ void ChessUISystem::draw_chessboard(ChessUISystem::SystemContext& system_context
     system_context.chessboard_ui_sc->cell_x_size = kBorderSizeX / chessboard.size();
     system_context.chessboard_ui_sc->cell_y_size = kBorderSizeY / chessboard[0].size();
 
-    for (size_t row = 0; row < chessboard.size(); ++row) {
-        for (size_t column = 0; column < chessboard[row].size(); ++column) {
-            auto cell_index = core::CellIndex{static_cast<int>(row), static_cast<int>(column)};
+    for (int row = 0; row < chessboard.size(); ++row) {
+        for (int column = 0; column < static_cast<int>(chessboard[row].size()); ++column) {
+            auto cell_index = core::CellIndex{row, column};
             fill_cell(system_context.chessboard_ui_sc, cell_index,
                       (column + row % 2) % 2 ? kChessboardColour1 : kChessboardColour2);
         }
@@ -143,9 +143,9 @@ void ChessUISystem::draw_chessboard(ChessUISystem::SystemContext& system_context
     // Draw boarder labels TODO: rewrite
     engine::Engine::Params engine_params = engine->get_params();
     engine::base::Color text_color = engine_params.window_params.clear_color.get_inverse();
-    for (size_t i = 0; i < chessboard.size(); ++i) {
+    for (int i = 0; i < chessboard.size(); ++i) {
         {
-            auto text_pos = system_context.chessboard_ui_sc->get_cell_pos(core::CellIndex{static_cast<int>(i), -1});
+            auto text_pos = system_context.chessboard_ui_sc->get_cell_pos(core::CellIndex{i, -1});
             text_pos.px += system_context.chessboard_ui_sc->cell_x_size / 2;
             text_pos.py += system_context.chessboard_ui_sc->cell_y_size / 2;
 
@@ -214,9 +214,9 @@ void ChessUISystem::draw_figures(ChessUISystem::SystemContext& system_context) {
                                              ? system_context.game_state_sc->game->get_chessboard()
                                              : core::kDefaultChessboard;
     // Draw figures
-    for (size_t row = 0; row < chessboard.size(); ++row) {
-        for (size_t column = 0; column < chessboard[row].size(); ++column) {
-            auto cell_index = core::CellIndex{static_cast<int>(row), static_cast<int>(column)};
+    for (int row = 0; row < chessboard.size(); ++row) {
+        for (int column = 0; column < static_cast<int>(chessboard[row].size()); ++column) {
+            auto cell_index = core::CellIndex{row, column};
             if (system_context.important_cells_sc->selected_cell == cell_index &&
                 system_context.important_cells_sc->selected_processing_pos) {
                 continue;

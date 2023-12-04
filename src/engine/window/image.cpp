@@ -1,5 +1,7 @@
 #include "engine/window/image.h"
 
+#include <cassert>
+
 namespace engine::window {
 
 Image::Image(SDL_Texture* texture, int width, int height) : texture_(texture), width_(width), height_(height) {}

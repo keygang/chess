@@ -1,5 +1,7 @@
 #include "chess/core/chessboard.h"
 
+#include <cassert>
+
 namespace chess::core {
 
 bool CellIndex::operator<(const CellIndex& rhs) const {
@@ -44,8 +46,8 @@ Chessboard::Chessboard(std::initializer_list<std::array<std::optional<Figure>, k
     }
 }
 
-size_t Chessboard::size() const {
-    return chessboard_.size();
+int Chessboard::size() const {
+    return static_cast<int>(chessboard_.size());
 }
 
 bool Chessboard::is_in_range(const Move& move) const {
@@ -53,8 +55,10 @@ bool Chessboard::is_in_range(const Move& move) const {
 }
 
 bool Chessboard::is_in_range(const CellIndex& cell_index) const {
-    return !(cell_index.x < 0 || cell_index.x >= chessboard_.size() || cell_index.y < 0 ||
-             cell_index.y >= chessboard_.size());
+    return !(cell_index.x < 0 ||
+             cell_index.x >= static_cast<int>(chessboard_.size()) ||
+             cell_index.y < 0 ||
+             cell_index.y >= static_cast<int>(chessboard_.size()));
 }
 
 std::optional<Figure>& Chessboard::operator[](const CellIndex& index) {

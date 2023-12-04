@@ -12,6 +12,7 @@ int Engine::init() {
             return code;
         }
 
+        assert(window_->get_renderer());
         managers_.emplace_back(std::make_unique<window::ImageManager>(window_->get_renderer()));
         managers_.emplace_back(std::make_unique<window::Renderer>(window_->get_renderer()));
     }

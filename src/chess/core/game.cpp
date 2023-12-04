@@ -1,5 +1,7 @@
 #include "chess/core/game.h"
 
+#include <cassert>
+
 namespace chess::core {
 
 const std::vector<FigureName> ChessGame::kValidPromotions = {
@@ -242,7 +244,7 @@ void ChessGame::push_move(const std::variant<Move, FigureName>& move) {
 
         if (chessboard_[simple_move->to]->figure_name == FigureName::PAWN) {
             if ((chessboard_[simple_move->to]->is_white && simple_move->to.x == 0) ||
-                (!chessboard_[simple_move->to]->is_white && simple_move->to.x + 1 == chessboard_.size())) {
+                (!chessboard_[simple_move->to]->is_white && simple_move->to.x + 1 == static_cast<int>(chessboard_.size()))) {
                 is_promotion_ = true;
                 moves_number_ -= 1;
             }
