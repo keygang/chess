@@ -1,7 +1,5 @@
 #include "assets_utils.h"
 
-#include <SDL_opengl.h>
-
 namespace chess::ui::utils {
 
 std::string get_current_path() {

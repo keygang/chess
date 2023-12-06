@@ -1,0 +1,11 @@
+common --enable_bzlmod
+
+build --define=path=$(pwd)
+
+build --cxxopt='-std=c++17'
+build --cxxopt='-Wall'
+build --cxxopt='-Wextra'
+build --cxxopt='-Werror'
+build --cxxopt='-Isrc/'
+
+build --color=yes
