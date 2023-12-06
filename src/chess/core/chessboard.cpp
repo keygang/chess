@@ -55,9 +55,7 @@ bool Chessboard::is_in_range(const Move& move) const {
 }
 
 bool Chessboard::is_in_range(const CellIndex& cell_index) const {
-    return !(cell_index.x < 0 ||
-             cell_index.x >= static_cast<int>(chessboard_.size()) ||
-             cell_index.y < 0 ||
+    return !(cell_index.x < 0 || cell_index.x >= static_cast<int>(chessboard_.size()) || cell_index.y < 0 ||
              cell_index.y >= static_cast<int>(chessboard_.size()));
 }
 

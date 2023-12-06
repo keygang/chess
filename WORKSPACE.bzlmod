@@ -1,0 +1,17 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "imgui",
+    url = "https://github.com/ocornut/imgui/archive/refs/tags/v1.90.tar.gz",
+    # sha256 = "",
+    build_file = "@//thirdparty:imgui.BUILD",
+    strip_prefix = "imgui-1.90",
+)
+
+# TODO: avoid using WORKSPACE???
+# TODO: avoid use local libs
+new_local_repository(
+    name = "local_libs",
+    path = "/opt/homebrew/Cellar/",
+    build_file = "//thirdparty:local_libs.BUILD",
+)

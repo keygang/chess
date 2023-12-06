@@ -1,0 +1,14 @@
+cc_library(
+    name = 'engine',
+    srcs = glob(['**/*.cpp']),
+    hdrs = glob(['**/*.h']),
+    linkopts = ["-framework OpenGL"],
+    deps = [
+        '//src/chess/core:chess_core',
+        '@imgui//:imgui',
+        '@local_libs//:sdl',
+        '@local_libs//:sdl_image',
+        '@fmt//:fmt',
+    ],
+    visibility = ["//visibility:public"],
+)

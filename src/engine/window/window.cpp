@@ -3,8 +3,9 @@
 #include <fmt/format.h>
 
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl.h>
-#include <imgui_impl_sdlrenderer.h>
+#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdlrenderer2.h>
+
 #include <iostream>
 
 namespace engine::window {
@@ -57,7 +58,7 @@ int Window::init() {
     //    ImGui_ImplSDL2_InitForOpenGL(window_, gl_context_);
 
     ImGui_ImplSDL2_InitForSDLRenderer(window_, renderer_);
-    ImGui_ImplSDLRenderer_Init(renderer_);
+    ImGui_ImplSDLRenderer2_Init(renderer_);
 
     return 0;
 }
@@ -83,7 +84,7 @@ bool Window::new_frame() {
     }
 
     // Start the Dear ImGui frame
-    ImGui_ImplSDLRenderer_NewFrame();
+    ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
@@ -97,7 +98,7 @@ void Window::render() {
     assert(imgui_io_);
 
     ImGui::Render();
-    ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
 
     SDL_RenderSetScale(renderer_, imgui_io_->DisplayFramebufferScale.x, imgui_io_->DisplayFramebufferScale.y);
     SDL_SetRenderDrawColor(renderer_, (Uint8)(params_.clear_color[0] * 255), (Uint8)(params_.clear_color[1] * 255),

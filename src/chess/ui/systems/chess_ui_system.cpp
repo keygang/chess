@@ -10,6 +10,7 @@
 
 #include <fmt/format.h>
 #include <imgui.h>
+#include <iostream>
 #include <optional>
 #include <set>
 #include <utility>
@@ -83,6 +84,7 @@ ChessUISystem::ChessUISystem() : engine::core::System() {
 void ChessUISystem::load_assets() {
     auto load_image_with_assert = [](const std::string& asset_name) -> IImage* {
         IImage* image = ImageUtils::load_image(utils::get_asset_path(asset_name));
+        std::cout << utils::get_asset_path(asset_name) << "\n";
         assert(image);
         return image;
     };

@@ -2,6 +2,9 @@
 
 cmake-build-*/
 build/
+bazel-*/
 .idea/
 .vscode/
+external/
 
+compile_commands.json

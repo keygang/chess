@@ -1,0 +1,10 @@
+cc_binary(
+    name = 'chess_ui',
+    srcs = glob(['**/*.cpp', '**/*.h']),
+    # TODO: absolute path
+    defines = ["ASSETS_DIR='\"/Users/stasbokun/CLionProjects/chess/src/chess/ui/assets\"'"],
+    deps = [
+        '//src/engine',
+        '//src/chess/core:chess_core',
+    ]
+)
